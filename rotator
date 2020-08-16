@@ -1,0 +1,223 @@
+#!/bin/bash
+#########################################################################################################################
+
+Install:  cd /usr/local/bin/ && wget -O rotator https://raw.githubusercontent.com/gitgithubs/var/master/rotator && chmod +x rotator
+Usage: rotator
+
+#########################################################################################################################
+create_mix_script(){
+
+echo -e "Введите полный путь к файлу который нужно заменить: /var/www/html/bla.apk"; read old_file;
+echo -e "Введите путь к папке с новыми файлами: /var/www/html/folder"; read new_folder;
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+
+cat > $script_name <<EOX
+
+#!/bin/bash
+
+
+new_file=\$(find $new_folder -type f | shuf -n 1)
+old_file=$old_file
+
+mv \$new_file \$old_file
+touch successsssssssss
+EOX
+
+chmod +x $script_name
+echo "all good"
+ls
+}
+
+#########################################################################################################################
+
+function addtocrontab(){
+
+local frequency=$1
+local command=$2
+local job="$frequency $command"
+cat <(fgrep -i -v "$command" <(crontab -l)) <(echo "$job") | crontab -
+}
+
+#########################################################################################################################
+
+function addtocrontab_every_hour(){
+if [ -z ${script_name+x} ]; then 
+echo "script_name is unset";
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script="$script_name >/dev/null 2>&1";
+addtocrontab "0 * * * *" "$script";
+
+else  
+echo "script_name = $script_name";
+script="$script_name >/dev/null 2>&1";
+
+addtocrontab "0 * * * *" "$script";
+fi
+}
+#########################################################################################################################
+
+function addtocrontab_every_hour_unset(){
+script_name unset;
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script="$script_name >/dev/null 2>&1";
+addtocrontab "0 * * * *" "$script";
+}
+
+
+#########################################################################################################################
+
+function addtocrontab_every_30min(){
+if [ -z ${script_name+x} ]; then 
+echo "script_name is unset";
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script=$script_name >/dev/null 2>&1;
+
+addtocrontab "*/30 * * * *" "$script";
+
+
+else 
+echo "script_name = $script_name";
+script=$script_name >/dev/null 2>&1;
+addtocrontab "*/30 * * * *" "$script";
+fi
+}
+#########################################################################################################################
+
+function addtocrontab_every_30min_unset(){
+script_name unset
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script=$script_name >/dev/null 2>&1;
+
+addtocrontab "*/30 * * * *" "$script";
+}
+#########################################################################################################################
+
+function addtocrontab_every_minute(){
+echo -e "Введите время в минутах: 1...59"; read time_minutes;
+if [ -z ${script_name+x} ]; then 
+echo "script_name is unset";
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script=$script_name >/dev/null 2>&1;
+
+addtocrontab "*/$time_minutes * * * *" "$script";
+
+else
+echo "script_name = $script_name";
+script=$script_name >/dev/null 2>&1;
+
+addtocrontab "*/$time_minutes * * * *" "$script";
+fi
+}
+#########################################################################################################################
+
+function addtocrontab_every_minute_unset(){
+echo -e "Введите время в минутах: 1...59"; read time_minutes;
+script_name unset
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+script=$script_name >/dev/null 2>&1;
+
+addtocrontab "*/$time_minutes * * * *" "$script";
+}
+#########################################################################################################################
+
+
+delete_script_from_crontab(){
+script_name unset;
+echo -e "Введите полный путь и название скрипта для обновления файлов: /root/mix1.sh , /root/mix2.sh"; read script_name;
+crontab -l | grep -v $script_name | crontab - ;
+}
+#########################################################################################################################
+
+delete_all_from_crontab(){
+crontab -r
+
+}
+#########################################################################################################################
+
+edit_crontab_manually(){
+crontab -e
+}
+
+#########################################################################################################################
+
+main_menu(){
+menu=""
+until [ "$menu" = "21" ]; do
+
+clear
+
+echo
+echo -e "\e[34m---------------------------------------------------------------------------------------------------------\e[00m"
+echo -e "\e[93m[+]\e[00m ВЫБЕРИТЕ ОПЦИЮ:"
+echo -e "\e[34m---------------------------------------------------------------------------------------------------------\e[00m"
+echo ""
+
+echo "1. Создать скрипт и добавить в крон (1 час)"
+echo "2. Создать скрипт и добавить в крон (30 мин)"
+echo "3. Создать скрипт и добавить в крон (n мин)"
+echo "4. Добавить указанный скрипт в крон каждый час"
+echo "5. Добавить указанный скрипт в крон каждые 30 минут"
+echo "6. Добавить указанный скрипт в крон каждые n минут"
+echo "7. Удалить указанный скрипт из крон"
+echo "8. Очистить крон полностью"
+echo "9. Редактировать crontab с помощью nano (сохранить ctrl+O и выйти ctrl+X"
+echo "0. Выход"
+echo
+
+read menu
+case $menu in
+
+1)
+create_mix_script
+addtocrontab_every_hour
+;;
+
+2)
+create_mix_script
+addtocrontab_every_30min
+;;
+
+3)
+create_mix_script
+addtocrontab_every_minute
+;;
+
+4)
+addtocrontab_every_hour_unset
+;;
+
+5)
+addtocrontab_every_30min_unset
+;;
+
+6)
+addtocrontab_every_minute_unset
+;;
+
+7)
+delete_script_from_crontab
+;;
+
+8)
+delete_all_from_crontab
+;;
+
+9)
+edit_crontab_manually
+;;
+
+0)
+break
+;;
+
+*) ;;
+
+esac
+done
+}
+
+#########################################################################################################################
+
+main_menu
+
+#########################################################################################################################
